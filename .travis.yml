@@ -16,7 +16,7 @@ env:
   
 script:
   - Rscript -e 'bookdown::render_book("index.Rmd")'
-  - cat _redirects >> _book/redirects # netlify redirects file
+  - cat _redirects >> _book/_redirects # netlify redirects file
   
 deploy:
   - provider: script
