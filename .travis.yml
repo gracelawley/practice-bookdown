@@ -2,20 +2,30 @@
 
 language: R
 cran: https://cran.rstudio.com
-sudo: false
-
-branches:
-  only:
-  - master
-
 cache:
-  packages: yes
-  directories:
-    - $TRAVIS_BUILD_DIR/_bookdown_files
+  packages: true
 
-script:
-  - Rscript -e 'bookdown::render_book("index.Rmd")'
-
+before_install:
+  - nvm install stable
+  - npm i netlify-cli -g
+  - export DEPLOY_MSG="${TRAVIS_COMMIT:0:7} ${TRAVIS_COMMIT_MESSAGE:0:70}"
+  
 env:
   - NETLIFY_SITE_ID=2f326b36-6ea6-465e-ab15-66ebdd84a3ec
   # NETLIFY_AUTH_TOKEN set in travis settings
+  
+script:
+  - Rscript -e 'bookdown::render_book("index.Rmd")'
+  
+deploy:
+  - provider: script
+    script: netlify deploy --dir _book --prod --message "$DEPLOY_MSG"
+    skip_cleanup: true
+    on:
+      branch: master
+  - provider: script
+    script: netlify deploy --dir _book --message "$DEPLOY_MSG"
+    skip_cleanup: true
+    on:
+      all_branches: true
+      condition: $TRAVIS_BRANCH != "master"
